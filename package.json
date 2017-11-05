@@ -1,0 +1,43 @@
+{
+  "name": "nexus",
+  "version": "1.0.0",
+  "description": "A Rest API framework written in Typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp",
+    "nexus-build": "node ./dist/command/runner"
+  },
+  "bin": {
+    "nexus": "./dist/command/runner.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthewwwillard/nexus.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matthewwwillard/nexus/issues"
+  },
+  "homepage": "https://github.com/matthewwwillard/nexus#readme",
+  "dependencies": {
+    "@types/express": "^4.0.39",
+    "@types/node": "^8.0.47",
+    "body-parser": "^1.18.2",
+    "chalk": "^2.3.0",
+    "del": "^3.0.0",
+    "express": "^4.16.2",
+    "express-decorators": "^1.0.0",
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.2.3",
+    "http": "0.0.0",
+    "minimist": "^1.2.0",
+    "mysql": "^2.15.0",
+    "typeorm": "^0.1.1"
+  },
+  "devDependencies": {
+    "run-sequence": "^2.2.0",
+    "typescript": "^2.6.1"
+  }
+}
