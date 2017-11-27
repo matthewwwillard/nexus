@@ -11,7 +11,7 @@ export class ActivityMiddleware {
         try
         {
             let activityData:object = {
-                ip:req.connection.remoteAddress,
+                ip:req.headers['x-forwarded-for'] || req.connection.remoteAddress,
                 browser:req.headers['user-agent'],
                 requestType:req.method,
                 requestEndPoint:req.originalUrl
