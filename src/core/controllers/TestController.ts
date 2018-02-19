@@ -3,15 +3,15 @@ import {ActivityMiddleware} from "../middleware/ActivityMiddleware";
 import {ResultsHelper} from "../utils/ResultsHelper";
 import {AuthMiddleware} from "../middleware/AuthMiddleware";
 import {CanEmail} from "../utils/email/CanEmail";
-import {config} from '../../../config';
+import {RESTApi} from "../RestAPI";
 
 @web.basePath('/api/test')
-export default class TestController implements CanEmail
+export default class TestController extends CanEmail
 {
     constructor()
     {
         //Currently using SG to send emails, can be adjusted to new services
-        super(config.SG_API_TOKEN);
+        super(RESTApi.instance.appSettings.SG_API_TOKEN);
     }
     @web.get('/',[ActivityMiddleware.TrackActivity, AuthMiddleware.BasicAuthCheck])
     async index(req, res)
