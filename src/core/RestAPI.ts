@@ -14,7 +14,7 @@ import * as socketIo from 'socket.io';
 import * as socketIODecorator from 'sio-tsd';
 import * as path from 'path';
 import {SioController} from "sio-tsd";
-import {ToyBox} from 'ToyBox';
+import {ToyBox} from 'toybox';
 import "reflect-metadata";
 import {Path} from "typescript";
 
@@ -116,25 +116,21 @@ export class RESTApi
             this.server = https.createServer(this.app);
 
 
-            this.socketServer = socketIo(this.server);
-            // this.socketServer.use(socketJwt.authorize({
-            //     secret:this.appSettings.REST_API_SECRET,
-            //     handshake:true
-            // }));
-            //Init controllers
 
-            // //Make our brand namespaces
-            // for(let i in brands)
-            // {
-            //     this.socketServer.of('/' + brands[i].name);
-            //     SocketIOHelper.namespaces.push('/' + brands[i].name);
-            // }
-            console.log(socketControllers);
+
+            this.socketServer = socketIo(this.server);
+            this.socketServer.use(socketJwt.authorize({
+                secret:this.appSettings.SOCKET_KEY,
+                handshake:true
+            }));
+
+            //Init controllers
             for(let controller in socketControllers)
             {
                 let nc = new socketControllers[controller]();
                 initSocketControllers.push(nc);
             }
+            console.log(initSocketControllers);
             const sioCrl = SioController.getInstance();
             sioCrl.init(this.socketServer);
             SocketIOHelper.io = this.socketServer;

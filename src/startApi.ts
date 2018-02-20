@@ -3,6 +3,10 @@ import * as cluster from 'cluster';
 import * as os from 'os';
 
 require('dotenv').config({path:__dirname + '/../.env'});
+
+// var api = new RESTApi(process.env.REST_API_PORT, '', '', process.env, 0);
+
+// require('dotenv').config({path:__dirname + '/../.env'});
 if(cluster.isMaster)
 {
     for(var i in os.cpus())
