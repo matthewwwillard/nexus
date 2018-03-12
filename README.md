@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## Welcome to Nexus
 
 You can use the [editor on GitHub](https://github.com/matthewwwillard/nexus/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
