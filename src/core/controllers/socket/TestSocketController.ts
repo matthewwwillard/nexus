@@ -20,12 +20,12 @@ export default class TestSocketController
     }
     //The name of the function is the event
     @socketIo.SioEvent()
-    public ping(data:any, socket:SocketIO.Socket)
+    public sentMessage(data:any, socket:SocketIO.Socket)
     {
         try
         {
             //Event name, Data!
-            socket.emit('pong', 'pong');
+            socket.emit('message', data);
         }
         catch (err)
         {

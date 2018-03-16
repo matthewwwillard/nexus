@@ -1,7 +1,6 @@
 {
   "include": [
-    "./src/**/*",
-    "./config.ts"
+    "./src/**/*"
   ],
   "exclude": [
   ],
@@ -15,7 +14,7 @@
     "target": "ES6",
     "typeRoots": [
       "node_modules/@types",
-      "./typings"
+      "typings"
     ],
     "lib": [
       "es2016",

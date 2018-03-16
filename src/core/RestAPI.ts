@@ -1,3 +1,5 @@
+/// <reference types="socket.io" />
+
 import {SocketIOHelper} from "./utils/SocketIOHelper";
 import * as socketJwt from 'socketio-jwt';
 import {createConnections, getConnection} from 'typeorm';
@@ -39,7 +41,7 @@ export class RESTApi
 
     private socketServer:SocketIO.Server;
 
-    constructor(port, key, cert, appSettings, workerId)
+    constructor(port, key, cert, appSettings, workerId, initDb = false)
     {
         this.port = port;
         this.key = key;
@@ -49,26 +51,17 @@ export class RESTApi
         this.workerId = workerId;
         this.appSettings = appSettings;
         this.toyBox = new ToyBox({uploadDir: __dirname + '/localUploads'});
-        this.init_server();
+        if(!initDb)
+            this.init_server();
     }
 
     private async init_server()
     {
         try
         {
-            let connection = await createConnections([
-                {
-                    name:"mysql",
-                    type:'mysql',
-                    host:this.appSettings.MYSQL_DB_HOST,
-                    port:this.appSettings.MYSQL_DB_PORT,
-                    username:this.appSettings.MYSQL_DB_USER,
-                    password:this.appSettings.MYSQL_DB_PASSWORD,
-                    database:this.appSettings.MYSQL_DB_DATABASE,
-                    entities:[__dirname + "/../db/models/mysql/*.js"],
-                    synchronize: true
-                },
-            ]);
+            console.log(__dirname + "/db/models/*.js");
+
+            let connection = this.init_db();
 
             this.app.all('*', function(req, res, next) {
                 res.header("Access-Control-Allow-Origin", "*");
@@ -119,10 +112,10 @@ export class RESTApi
 
 
             this.socketServer = socketIo(this.server);
-            this.socketServer.use(socketJwt.authorize({
-                secret:this.appSettings.SOCKET_KEY,
-                handshake:true
-            }));
+            // this.socketServer.use(socketJwt.authorize({
+            //     secret:this.appSettings.SOCKET_KEY,
+            //     handshake:true
+            // }));
 
             //Init controllers
             for(let controller in socketControllers)
@@ -149,6 +142,22 @@ export class RESTApi
             console.log(error);
             process.exit(1);
         }
+    }
+    public async init_db()
+    {
+        return await createConnections([
+            {
+                name:"mysql",
+                type:'mysql',
+                host:this.appSettings.MYSQL_DB_HOST,
+                port:this.appSettings.MYSQL_DB_PORT,
+                username:this.appSettings.MYSQL_DB_USER,
+                password:this.appSettings.MYSQL_DB_PASSWORD,
+                database:this.appSettings.MYSQL_DB_DATABASE,
+                entities:[__dirname + "/db/models/*.js"],
+                synchronize: true
+            },
+        ]);
     }
 
 }
