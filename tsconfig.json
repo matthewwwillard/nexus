@@ -1,11 +1,11 @@
 {
   "include": [
-    "./src/**/*",
-    "./config.ts"
+    "./src/**/*"
   ],
   "exclude": [
   ],
   "compilerOptions": {
+    "outDir": "dist",
     "module": "commonjs",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -14,7 +14,7 @@
     "target": "ES6",
     "typeRoots": [
       "node_modules/@types",
-      "./typings"
+      "typings"
     ],
     "lib": [
       "es2016",
