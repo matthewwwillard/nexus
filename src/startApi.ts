@@ -26,9 +26,13 @@ if(cluster.isMaster)
             console.log(err.message);
             process.exit(1);
         }
-    )
+    ).catch((err)=>{
+        console.log(err.message);
+        process.exit(1);
+    })
 
 
 }
 else
     var api = new RESTApi(process.env.REST_API_PORT, '', '', process.env, cluster.worker.id);
+
