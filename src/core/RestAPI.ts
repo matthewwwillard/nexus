@@ -62,7 +62,7 @@ export class RESTApi
         {
             console.log(__dirname + "/db/models/*.js");
 
-            let connection = this.init_db();
+            let connection = await this.init_db(false);
 
             this.app.all('*', function(req, res, next) {
                 res.header("Access-Control-Allow-Origin", "*");
@@ -144,7 +144,7 @@ export class RESTApi
             process.exit(1);
         }
     }
-    public async init_db()
+    public async init_db(sync = true)
     {
         return await createConnections([
             {
@@ -156,7 +156,7 @@ export class RESTApi
                 password:this.appSettings.MYSQL_DB_PASSWORD,
                 database:this.appSettings.MYSQL_DB_DATABASE,
                 entities:[__dirname + "/db/models/*.js"],
-                synchronize: true
+                synchronize: sync
             },
         ]);
     }
