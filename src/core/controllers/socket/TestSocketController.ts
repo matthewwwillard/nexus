@@ -1,7 +1,8 @@
-import * as socketIo from 'sio-tsd';
+import * as SocketController from '../../utils/SocketDecorators';
 import {ConnectedUser, SocketIOHelper} from "../../utils/SocketIOHelper";
+import SocketIO = require("socket.io");
 
-@socketIo.SioNamespace(
+@SocketController.SioNamespace(
     {
         //This creates namespaces!
         name:['/'],
@@ -19,7 +20,7 @@ export default class TestSocketController
         SocketIOHelper.connectedUsers.push({socketId:socket.id});
     }
     //The name of the function is the event
-    @socketIo.SioEvent()
+    @SocketController.SioEvent()
     public sentMessage(data:any, socket:SocketIO.Socket)
     {
         try

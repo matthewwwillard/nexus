@@ -1,3 +1,5 @@
+import SocketIO = require("socket.io");
+
 export class ConnectedUser
 {
     constructor(socketId, username)

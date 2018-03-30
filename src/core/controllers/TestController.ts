@@ -1,11 +1,11 @@
-import * as web from 'express-decorators';
+import {ExpressController} from '../utils/ExpressDecorators';
 import {ActivityMiddleware} from "../middleware/ActivityMiddleware";
 import {ResultsHelper} from "../utils/ResultsHelper";
 import {AuthMiddleware} from "../middleware/AuthMiddleware";
 import {CanEmail} from "../utils/email/CanEmail";
 import {RESTApi} from "../RestAPI";
 
-@web.basePath('/api/test')
+@ExpressController.basePath('/api/test')
 export default class TestController extends CanEmail
 {
     constructor()
@@ -13,7 +13,7 @@ export default class TestController extends CanEmail
         //Currently using SG to send emails, can be adjusted to new services
         super(RESTApi.instance.appSettings.SG_API_TOKEN);
     }
-    @web.get('/',[ActivityMiddleware.TrackActivity, AuthMiddleware.BasicAuthCheck])
+    @ExpressController.get('/',[ActivityMiddleware.TrackActivity, AuthMiddleware.BasicAuthCheck])
     async index(req, res)
     {
         try
@@ -25,7 +25,7 @@ export default class TestController extends CanEmail
             return ResultsHelper.sendResult(res, {message:'Bad Request! Error: ' + err.message}, 500);
         }
     }
-    @web.get('/:email', [ActivityMiddleware.TrackActivity])
+    @ExpressController.get('/:email', [ActivityMiddleware.TrackActivity])
     async emailTester(req, res)
     {
         try

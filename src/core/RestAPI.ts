@@ -3,7 +3,7 @@
 import {SocketIOHelper} from "./utils/SocketIOHelper";
 import * as socketJwt from 'socketio-jwt';
 import {createConnections, getConnection} from 'typeorm';
-import * as web from "express-decorators";
+import {ExpressController} from "./utils/ExpressDecorators";
 import * as controllers from './controllers';
 //import * as overrideControllers from './controllers/overrides';
 
@@ -13,12 +13,13 @@ import * as https from 'http';
 import * as fse from 'fs-extra';
 import * as bodyParser from 'body-parser';
 import * as socketIo from 'socket.io';
-import * as socketIODecorator from 'sio-tsd';
+import * as socketIODecorator from './utils/SocketDecorators';
 import * as path from 'path';
-import {SioController} from "sio-tsd";
-import {ToyBox} from 'toybox';
+import {SioController} from './utils/SocketDecorators';
+import {ToyBox} from './utils/ToyBox/ToyBox';
 import "reflect-metadata";
 import {Path} from "typescript";
+import SocketIO = require("socket.io");
 
 export class RESTApi
 {
@@ -85,7 +86,7 @@ export class RESTApi
             {
                 let c = new controllers[controller]();
                 initControllers.push(c);
-                web.register(this.app, c);
+                ExpressController.register(this.app, c);
             }
             // //Add overwritten classes!
             // for(let oController in overrideControllers)
