@@ -5,6 +5,7 @@ import * as socketJwt from 'socketio-jwt';
 import {createConnections, getConnection} from 'typeorm';
 import {ExpressController} from "./utils/ExpressDecorators";
 import * as controllers from './controllers';
+import * as defaultDbs from './db/defaults';
 //import * as overrideControllers from './controllers/overrides';
 
 import * as socketControllers from './controllers/socket';
@@ -20,6 +21,10 @@ import {ToyBox} from './utils/ToyBox/ToyBox';
 import "reflect-metadata";
 import {Path} from "typescript";
 import SocketIO = require("socket.io");
+import {ActivityTracker} from "./db/models/ActivityTracker";
+import {DbDefaultsBase} from "./utils/DbDefaultsBase";
+import {EmailSender} from "./utils/email/EmailSender";
+
 
 export class RESTApi
 {
@@ -27,6 +32,7 @@ export class RESTApi
 
     public appSettings;
     public toyBox:ToyBox;
+    public emailSender:EmailSender;
     public workerId;
 
     private app;
@@ -40,7 +46,7 @@ export class RESTApi
 
     private server;
 
-    private socketServer:SocketIO.Server;
+    private socketServer;
 
     constructor(port, key, cert, appSettings, workerId, initDb = false)
     {
@@ -51,7 +57,8 @@ export class RESTApi
         RESTApi.instance = this;
         this.workerId = workerId;
         this.appSettings = appSettings;
-        this.toyBox = new ToyBox({uploadDir: __dirname + '/localUploads'});
+        this.toyBox = new ToyBox({uploadDir: __dirname + '/../../localUploads',localImageURI:this.appSettings.API_STATIC_IMAGE_URL});
+
         if(!initDb)
             this.init_server();
     }
@@ -60,8 +67,6 @@ export class RESTApi
     {
         try
         {
-            console.log(__dirname + "/db/models/*.js");
-
             let connection = await this.init_db(false);
 
             this.app.all('*', function(req, res, next) {
@@ -72,7 +77,6 @@ export class RESTApi
             });
 
             //Expand Express
-
             this.app.use(bodyParser.urlencoded({extended:false,limit: '50mb'}));
             this.app.use(bodyParser.json({limit: '50mb'}));
             this.app.set('trust proxy', true);
@@ -97,7 +101,7 @@ export class RESTApi
             // }
 
             //require('express-print-routes')(this.app, './file.txt');
-            this.app.use('/images', express.static(path.join(__dirname, 'localUploads')));
+            this.app.use('/images', express.static(path.join(__dirname, '../../localUploads')));
 
             this.app.all('*', function(req,res, next){
 
@@ -108,9 +112,6 @@ export class RESTApi
             });
 
             this.server = https.createServer(this.app);
-
-
-
 
             this.socketServer = socketIo(this.server);
             // this.socketServer.use(socketJwt.authorize({
@@ -124,7 +125,7 @@ export class RESTApi
                 let nc = new socketControllers[controller]();
                 initSocketControllers.push(nc);
             }
-            console.log(initSocketControllers);
+
             const sioCrl = SioController.getInstance();
             sioCrl.init(this.socketServer);
             SocketIOHelper.io = this.socketServer;
@@ -146,9 +147,10 @@ export class RESTApi
     }
     public async init_db(sync = true)
     {
-        return await createConnections([
+
+        let connection = await createConnections([
             {
-                name:"mysql",
+                name:"default",
                 type:'mysql',
                 host:this.appSettings.MYSQL_DB_HOST,
                 port:this.appSettings.MYSQL_DB_PORT,
@@ -159,6 +161,18 @@ export class RESTApi
                 synchronize: sync
             },
         ]);
+
+        if(sync) {
+            console.log('Initializing Defaults');
+            for (let dbBase in defaultDbs) {
+                let dbDefault = new defaultDbs[dbBase]();
+
+                await dbDefault.init();
+                await dbDefault.run();
+                await dbDefault.end();
+            }
+        }
+        return connection;
     }
 
 }

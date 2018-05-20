@@ -16,7 +16,7 @@ export class ToyBox{
         }
 
     }
-    public engine(name:string)
+    public engine(name:string) : BaseEngineCalls
     {
         return this.allEngines[name.toLowerCase()];
     }

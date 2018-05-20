@@ -22,6 +22,40 @@ export class ResultsHelper
             return false;
         }
     }
+
+    /**
+     *
+     * Checks if an Object as the required properties. Accepts a string array, or a class reference. See notes in https://confluence.printsites.io/pages/viewpage.action?pageId=47022947
+     *
+     * @param {object} object
+     * @param {string[] | object} keys
+     * @returns {Promise<boolean>}
+     */
+    public static async objectHasProperties(object:object, required:string[]|object)
+    {
+        if(object == null)
+            return false;
+
+        if(Array.isArray(required)) {
+            let allKeys = Object.keys(object);
+
+            for (let key of required) {
+                if (allKeys.indexOf(key) < 0)
+                    return false;
+            }
+        }
+        else
+        {
+            let requiredKeys:string[] = Object.keys(required);
+            let allKeys = Object.keys(object);
+
+            for (let key of requiredKeys) {
+                if (allKeys.indexOf(key) < 0)
+                    return false;
+            }
+        }
+        return true;
+    }
     public static HttpErrors = {
         FORBIDDEN:403,
         MISSING:404,

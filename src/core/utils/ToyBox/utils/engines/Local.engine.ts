@@ -2,12 +2,14 @@ import {BaseEngineCalls} from "../BaseEngineCalls";
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import {blob} from "aws-sdk/clients/codecommit";
+import {RESTApi} from "../../../../RestAPI";
 
 export default class LocalEngine extends BaseEngineCalls
 {
     constructor(config:object)
     {
         super(config);
+        this.init();
     }
     private async toBase64(filePath:string)
     {
@@ -24,6 +26,7 @@ export default class LocalEngine extends BaseEngineCalls
             if (!fs.existsSync(this.myConfigs.uploadDir)) {
                 fs.mkdirSync(this.myConfigs.uploadDir);
             }
+
         }
         catch(err)
         {
@@ -33,7 +36,7 @@ export default class LocalEngine extends BaseEngineCalls
     }
     public async get (filename:string)
     {
-        return new Promise<any>((resolve, reject)=>{
+        return await new Promise<any>((resolve, reject)=>{
             try
             {
                 if(!fs.existsSync(this.myConfigs.uploadDir + filename))
@@ -48,10 +51,13 @@ export default class LocalEngine extends BaseEngineCalls
     }
     public async set(source:any, filePath:string)
     {
-        return new Promise<any>((resolve, reject)=>{
+        return await new Promise<string>(async (resolve, reject)=>{
             try
             {
-                return resolve(this.fromBase64(source, filePath));
+                let file = this.myConfigs.localImageURI + filePath;
+                await this.fromBase64(source, filePath);
+
+                return resolve(file);
             }
             catch (err)
             {
@@ -61,7 +67,7 @@ export default class LocalEngine extends BaseEngineCalls
     }
     public async delete()
     {
-        return new Promise<any>((resolve, reject)=>{
+        return await new Promise<any>((resolve, reject)=>{
             try
             {
 
