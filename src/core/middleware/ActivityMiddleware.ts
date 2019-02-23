@@ -26,7 +26,7 @@ export class ActivityMiddleware {
 
         next();
     }
-    public static async CompleteActivityTrack(res)
+    public static async CompleteActivityTrack(res, data = null)
     {
         try
         {
@@ -39,6 +39,12 @@ export class ActivityMiddleware {
             activity.requestEndPoint = activityData['requestEndPoint'];
             activity.requestType = activityData['requestType'];
 
+            // if(data != null)
+            //     activity.payload = JSON.stringify(ActivityMiddleware.CleanDataObject(data));
+
+            if(res.locals.user != null)
+                activity.user = res.locals.user;
+
 
             await db.getRepository(ActivityTracker).save(activity);
 
@@ -47,5 +53,36 @@ export class ActivityMiddleware {
         {
             console.log('Unable to persist activity data! ERROR: ' + err.message);
         }
+    }
+    public static async CleanDataObject(data)
+    {
+        let tempData = Object.assign({},data);
+        let removeNames = [
+            "password",
+            "token",
+            "email"
+        ];
+
+        let dataKeys = Object.keys(tempData);
+
+        console.log(dataKeys);
+
+        for(let i = 0; i < dataKeys.length; i++)
+        {
+            if(tempData[dataKeys[i]] == null)
+                continue;
+
+            if(typeof tempData[dataKeys[i]] === 'object')
+            {
+                console.log(dataKeys[i] + ' is an object!');
+                tempData[dataKeys[i]] = await ActivityMiddleware.CleanDataObject(tempData[dataKeys[i]]);
+            }
+
+            if(removeNames.indexOf(dataKeys[i]) >= 0)
+                delete tempData[dataKeys[i]];
+        }
+
+        return tempData;
+
     }
 }

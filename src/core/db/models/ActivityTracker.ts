@@ -1,4 +1,9 @@
-import {Column, CreateDateColumn, PrimaryGeneratedColumn, Entity} from "typeorm";
+import {
+    Column, CreateDateColumn, PrimaryGeneratedColumn, Entity, ManyToOne, JoinColumnOptions,
+    JoinColumn, OneToMany
+} from "typeorm";
+import {AppTokens} from "./AppTokens";
+import {Users} from "./Users";
 
 @Entity()
 export class ActivityTracker implements IActivityTracker
@@ -6,20 +11,31 @@ export class ActivityTracker implements IActivityTracker
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column()
+    @Column({nullable:true})
     browser:string;
 
-    @Column()
+    @Column({nullable:true})
     ip:string;
 
-    @Column()
+    @Column({nullable:true})
     returnStatus:number;
 
-    @Column()
+    @Column({nullable:true})
     requestType:string;
 
-    @Column()
+    @Column({nullable:true})
     requestEndPoint:string;
+
+    @Column('text',{nullable:true})
+    payload:string;
+
+    @ManyToOne(type=>Users)
+    @JoinColumn()
+    user:Users;
+
+    @ManyToOne(type=>AppTokens)
+    @JoinColumn()
+    appToken:AppTokens;
 
     @CreateDateColumn()
     requested:string;

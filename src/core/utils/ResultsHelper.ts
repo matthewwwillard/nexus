@@ -10,11 +10,11 @@ export class ResultsHelper
             if(res.hasOwnProperty('locals') && res.locals['activity'] != null)
             {
                 res.locals['activity']['returnStatus'] = status;
-                await ActivityMiddleware.CompleteActivityTrack(res);
+                await ActivityMiddleware.CompleteActivityTrack(res,data);
             }
-            return await res.status(status).json({
-                data:data
-            }).end();
+            return await res.status(status).json(
+                data
+            ).end();
         }
         catch(err)
         {
@@ -56,6 +56,17 @@ export class ResultsHelper
         }
         return true;
     }
+
+    public static generateMachineName(name:string)
+    {
+        let step1 = name.replace(/[/]/gmi, '');
+
+        let underscored = step1.replace(/[ \-,&]/gmi, '_');
+
+        return underscored.toUpperCase();
+
+    }
+
     public static HttpErrors = {
         FORBIDDEN:403,
         MISSING:404,

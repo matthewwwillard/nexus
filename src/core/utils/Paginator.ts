@@ -1,3 +1,5 @@
+import {BaseEntity, Connection, Entity, EntitySchema, getConnection, ObjectType, Repository} from "typeorm";
+
 export interface PaginatorSettings
 {
     perPage:number;
@@ -53,8 +55,39 @@ export class Paginator
         }
         return paginatorObject;
     }
-    public static async PaginateTable(tablename, settings:PaginatorSettings)
+    public static async PaginateTable(table:ObjectType<any>, relations:string[], where:{}, settings:PaginatorSettings) : Promise<{totalCount:number, results:any[]}>
     {
+        let direction = 1;
 
+        if(settings.toPage < settings.currentPage)
+            direction = -1;
+        
+        let from = settings.currentPage * settings.perPage;
+        let to = from + (settings.perPage * direction);
+    
+        if(settings.toPage == 1)
+        {
+            from = 0;
+            to = settings.perPage;
+        }
+
+        console.log(from, to);
+        
+        let count = await getConnection().getRepository(table).count(
+            {
+                where:where
+            }
+        );
+        
+        let results = await getConnection().getRepository(table).find(
+            {
+                where:where,
+                relations:relations,
+                skip:from,
+                take:to
+            }
+        );
+
+        return {totalCount:count, results:results};
     }
 }
