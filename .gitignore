@@ -1,0 +1,11 @@
+.idea
+.env
+node_modules/
+dist/
+apiDocs/
+_config.yml
+fanlabel-api.iml
+uploads/
+deployment/
+apple_key.p8
+apn.p8
