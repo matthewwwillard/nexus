@@ -12,6 +12,7 @@ export class BaseEngineCalls
         this.init();
     }
     protected init(){}
+    public localPath() : Promise<any> { return; }
     protected get(filename?:string) : Promise<any> { return;}
     public set(source?:any, filename?:string, dir:string = '/') : Promise<any> { return; }
     public delete(filename?:string) : Promise<any> { return; }

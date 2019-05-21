@@ -2,7 +2,8 @@ import {BaseEngineCalls} from "../BaseEngineCalls";
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import {blob} from "aws-sdk/clients/codecommit";
-import {RESTApi} from "../../../../RestAPI";
+import {sioEventProp} from "../../../SocketDecorators";
+var sizeOf = require('image-size');
 
 export default class LocalEngine extends BaseEngineCalls
 {
@@ -34,6 +35,10 @@ export default class LocalEngine extends BaseEngineCalls
         }
         return;
     }
+    public async localPath()
+    {
+        return this.myConfigs.uploadDir;
+    }
     public async get (filename:string)
     {
         return await new Promise<any>((resolve, reject)=>{
@@ -51,17 +56,19 @@ export default class LocalEngine extends BaseEngineCalls
     }
     public async set(source:any, filePath:string)
     {
-        return await new Promise<string>(async (resolve, reject)=>{
+        return await new Promise<{error:boolean, message:string, url:string, sizes:any}>(async (resolve, reject)=>{
             try
             {
                 let file = this.myConfigs.localImageURI + filePath;
                 await this.fromBase64(source, filePath);
+                
+                let sizes = await sizeOf(this.myConfigs.uploadDir + filePath);
 
-                return resolve(file);
+                return resolve({error:false, message:'', url:file, sizes:sizes});
             }
             catch (err)
             {
-                reject(err.message);
+                reject({error:true, message:err.message, url:null, sizes:null});
             }
         });
     }

@@ -5,6 +5,8 @@ export interface PaginatorSettings
     perPage:number;
     currentPage:number;
     toPage:number;
+    orderBy?:{colum:string, direction:string}
+    where?:any
 }
 export class PaginatorObject
 {
@@ -55,39 +57,52 @@ export class Paginator
         }
         return paginatorObject;
     }
-    public static async PaginateTable(table:ObjectType<any>, relations:string[], where:{}, settings:PaginatorSettings) : Promise<{totalCount:number, results:any[]}>
+    public static async PaginateTable(table:ObjectType<any>, relations:string[], where:{}, settings:PaginatorSettings, order:any = {id:"DESC"}) : Promise<{totalCount:number, results:any[]}>
     {
-        let direction = 1;
-
-        if(settings.toPage < settings.currentPage)
-            direction = -1;
-        
-        let from = settings.currentPage * settings.perPage;
-        let to = from + (settings.perPage * direction);
-    
-        if(settings.toPage == 1)
-        {
-            from = 0;
-            to = settings.perPage;
-        }
-
-        console.log(from, to);
-        
-        let count = await getConnection().getRepository(table).count(
-            {
-                where:where
-            }
-        );
-        
-        let results = await getConnection().getRepository(table).find(
+        let [results, count] = await getConnection().getRepository(table).findAndCount(
             {
                 where:where,
                 relations:relations,
-                skip:from,
-                take:to
+                skip:(settings.toPage-1) * settings.perPage,
+                take:settings.perPage,
+                order: order
             }
         );
-
+        
+        return {totalCount:count, results:results};
+    }
+    public static async PaginateTableAdvanced(table:{table:ObjectType<any>, alias:string}, relations:{key:string, alias:string}[], where:{condition:string, and:boolean, args:any}[], settings:PaginatorSettings, order:any) : Promise<{totalCount:number, results:any[]}>
+    {
+        
+        let q = await getConnection().getRepository(table.table).createQueryBuilder(table.alias);
+        
+        for(let r of relations)
+        {
+            q.leftJoinAndSelect(r.key, r.alias);
+        }
+        
+        for(let w of where)
+        {
+            if(w.and)
+            {
+                q.andWhere(w.condition, w.args);
+            }
+            else
+            {
+                q.orWhere(w.condition, w.args);
+            }
+        }
+        
+        if(order != null)
+        {
+            q.orderBy(order)
+        }
+        
+        q.take(settings.perPage);
+        q.skip((settings.toPage-1) * settings.perPage);
+        
+        let [results, count] = await q.getManyAndCount();
+        
         return {totalCount:count, results:results};
     }
 }
