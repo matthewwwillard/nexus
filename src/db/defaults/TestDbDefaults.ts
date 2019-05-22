@@ -3,7 +3,7 @@ import {getConnection} from "typeorm";
 import {TestDb} from "../models/TestDb";
 import {DbDefaultsBase} from "../../core/utils/DbDefaultsBase";
 
-export default class TestDbDefaults extends DbDefaultsBase
+export class TestDbDefaults extends DbDefaultsBase
 {
     private update:boolean = false;
     

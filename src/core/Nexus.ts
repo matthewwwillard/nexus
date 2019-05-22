@@ -2,9 +2,6 @@
 
 import * as socketJwt from 'socketio-jwt';
 import {createConnections, getConnection} from 'typeorm';
-
-import * as defaultDbs from '../db/defaults';
-//import * as overrideControllers from './controllers/overrides';
 import * as express from 'express';
 import * as https from 'http';
 import * as fse from 'fs-extra';
@@ -94,16 +91,8 @@ export class Nexus
                 let c = require(path.join(__dirname,'../http/controllers/'+controller));
                 Nexus.http.register(this.app, new c[controller.split('.')[0]]());
             }
-            // //Add overwritten classes!
-            // for(let oController in overrideControllers)
-            // {
-            //     let oc = new overrideControllers[oController]();
-            //     initControllers.push(oc);
-            //     web.register(this.app, oc);
-            // }
 
-            //require('express-print-routes')(this.app, './file.txt');
-            //this.app.use('/images', express.static(path.join(__dirname, Nexus.settings.TOYBOX_DIR)));
+            this.app.use('/images', express.static(path.join(__dirname, Nexus.settings.TOYBOX_DIR)));
             this.app.use('/docs', express.static(path.join(__dirname, '../../apiDocs/')));
 
             this.app.all('*', function(req,res, next){
@@ -172,13 +161,20 @@ export class Nexus
 
         if(sync) {
             console.log('Initializing Defaults');
-            for (let dbBase in defaultDbs) {
-                let dbDefault = new defaultDbs[dbBase]();
 
-                await dbDefault.init();
-                await dbDefault.run();
-                await dbDefault.end();
+            const dbDefaults = fse.readdirSync(path.join(__dirname,'../db/defaults'));
+
+            //Add base classes
+            for(let controller of dbDefaults)
+            {
+                let c = require(path.join(__dirname,'../db/defaults/'+controller));
+                let d = new c[controller.split('.')[0]]();
+
+                await d.init();
+                await d.run();
+                await d.end();
             }
+
         }
         return connection;
     }
