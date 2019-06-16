@@ -1,6 +1,6 @@
 module.exports = {
     apps : [{
-        name: "FanLabelProd",
+        name: "NexusAPI",
         script: "./dist/startApi.js",
         env: {
             NODE_ENV: "production"
