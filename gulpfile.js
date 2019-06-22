@@ -26,7 +26,7 @@ gulp.task('watch',['default'], function(){
 
     var server = gls.new('dist/startApi.js');
     server.start();
-    gulp.watch('src/core/**/*.ts', function(file){
+    gulp.watch('src/**/*.ts', function(file){
         console.log('Watch!');
         runSequence('clean','typescript', function () {
             server.stop().then(function () {
