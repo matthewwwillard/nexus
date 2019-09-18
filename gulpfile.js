@@ -16,7 +16,7 @@ gulp.task("clean", function()
 {
     return del("./dist",{force:true});
 });
-gulp.task("docs", run("apidoc -i ./src/core/controllers -o ./apiDocs"));
+gulp.task("docs", run("apidoc -i ./src/http -i ./src/socket -o ./apiDocs"));
 gulp.task("start", run("node dist/startApi"));
 gulp.task("default", function(callback)
 {
