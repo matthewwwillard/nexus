@@ -11,4 +11,8 @@ export class SocketService
     {
         return SocketController.SioEvent();
     }
+    public rootIo()
+    {
+        return SocketController.SioSocketServer;
+    }
 }

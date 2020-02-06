@@ -14,6 +14,14 @@ export class SocketIOHelper
     public connectedUsers:ConnectedUser[] = [];
     public io:SocketIO.Server;
 
+    public userDisconnected(socketId:any)
+    {
+        this.connectedUsers = this.connectedUsers.filter((v,i,a)=>
+        {
+            return v != socketId;
+        })
+    }
+
     public emitToAll(eventName, data)
     {
         this.namespaces.forEach(namespace =>{

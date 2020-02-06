@@ -12,6 +12,9 @@ import {Nexus} from "../../core/Nexus";
 )
 export class TestSocketController
 {
+    @Nexus.socketIo.rootIo()
+    public static io:SocketIO.Server;
+
     public static onConnection(socket:SocketIO.Socket)
     {
         //A user has connected to the server

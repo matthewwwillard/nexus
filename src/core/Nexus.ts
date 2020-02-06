@@ -1,17 +1,12 @@
-/// <reference types="socket.io" />
 
-import * as socketJwt from 'socketio-jwt';
 import {createConnections, getConnection} from 'typeorm';
 import * as express from 'express';
 import * as https from 'http';
 import * as fse from 'fs-extra';
 import * as bodyParser from 'body-parser';
 import * as publicIp from 'express-public-ip';
-import * as socketIo from 'socket.io';
-import * as socketIODecorator from './utils/SocketDecorators';
+
 import * as path from 'path';
-import {SioController} from './utils/SocketDecorators';
-import {ToyBox} from './utils/ToyBox/ToyBox';
 import "reflect-metadata";
 import {HttpService} from "./utils/HttpService";
 import {HelpersService} from "./utils/HelpersService";
@@ -37,7 +32,7 @@ export class Nexus
     private server;
     private socketServer;
 
-    constructor(port, key, cert, appSettings, workerId, initDb = false)
+    constructor(port, key, cert, appSettings, workerId)
     {
         Nexus.settings = appSettings;
         Nexus.http = new HttpService();
@@ -57,15 +52,15 @@ export class Nexus
 
         this.workerId = workerId;
         
-        if(!initDb)
-            this.init_server();
+        // if(!initDb)
+        //     this.init_server();
     }
 
-    private async init_server()
+    public async init_server()
     {
         try
         {
-            let connection = await this.init_db(false);
+            //let connection = await this.init_db(false);
 
             this.app.all('*', function(req, res, next) {
                 res.header("Access-Control-Allow-Origin", "*");
@@ -81,7 +76,6 @@ export class Nexus
             this.app.use(publicIp());
 
             let initControllers = [];
-            let initSocketControllers = [];
 
             const controllers = fse.readdirSync(path.join(__dirname,'../http/controllers'));
 
@@ -105,31 +99,16 @@ export class Nexus
 
             this.server = https.createServer(this.app);
 
-            this.socketServer = socketIo(this.server);
-            // this.socketServer.use(socketJwt.authorize({
-            //     secret:this.appSettings.SOCKET_KEY,
-            //     handshake:true
-            // }));
-
-            const socketControllers = fse.readdirSync(path.join(__dirname,'../socket/controllers'));
-
-            //Add base classes
-            for(let controller of socketControllers)
-            {
-                let c = require(path.join(__dirname,'../socket/controllers/'+controller));
-                initSocketControllers.push(new c[controller.split('.')[0]]());
-            }
-
-            const sioCrl = SioController.getInstance();
-            sioCrl.init(this.socketServer);
-            Nexus.helpers.io = this.socketServer;
 
 
-            this.server.listen(this.port, () =>
-            {
-                console.log('Started API Server on port: ' + this.port + ' I am worker ' + this.workerId);
-            });
+            // return this.server;
 
+            // this.server.listen(this.port, () =>
+            // {
+            //     console.log('Started API Server on port: ' + this.port + ' I am worker ' + this.workerId);
+            // });
+
+            return this.server;
 
 
         }

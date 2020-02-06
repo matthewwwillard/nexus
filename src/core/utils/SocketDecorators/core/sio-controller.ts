@@ -1,4 +1,5 @@
 import * as SocketIO from 'socket.io';
+import {Nexus} from "../../../Nexus";
 export const sioEventProp = '__sioEvent';
 export const sioNamespaceProp = '__sioNamespace';
 export const sioRegisterConnection = '__sioConnection';
@@ -84,7 +85,6 @@ export class SioController {
         nsp.use(cb);
       });
     }
-
     nsp.on('connection', (socket: SocketIO.Socket) => {
       const onConnectionCbs = nspObj.constructor[sioNamespaceProp].onConnection;
 
@@ -101,6 +101,10 @@ export class SioController {
           });
         });
       }
+
+    socket.on('disconnect', ()=>{
+        Nexus.helpers.io.userDisconnected(socket.id);
+      });
     });
 
     this.namespaces.set(nspName, nsp);
