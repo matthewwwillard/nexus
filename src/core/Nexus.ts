@@ -10,6 +10,7 @@ import * as publicIp from 'express-public-ip';
 import * as socketIo from 'socket.io';
 import * as socketIODecorator from './utils/SocketDecorators';
 import * as path from 'path';
+import * as redisAdapter from 'socket.io-redis';
 import {SioController} from './utils/SocketDecorators';
 import {ToyBox} from './utils/ToyBox/ToyBox';
 import "reflect-metadata";
@@ -105,25 +106,33 @@ export class Nexus
 
             this.server = https.createServer(this.app);
 
-            this.socketServer = socketIo(this.server);
-            // this.socketServer.use(socketJwt.authorize({
-            //     secret:this.appSettings.SOCKET_KEY,
-            //     handshake:true
-            // }));
-
-            const socketControllers = fse.readdirSync(path.join(__dirname,'../socket/controllers'));
-
-            //Add base classes
-            for(let controller of socketControllers)
-            {
-                let c = require(path.join(__dirname,'../socket/controllers/'+controller));
-                initSocketControllers.push(new c[controller.split('.')[0]]());
+            if(Nexus.settings.ENABLE_SOCKET_SERVER == 'true') {
+                console.log('SOCKET SERVER IS ENABLED');
+                this.socketServer = socketIo(this.server);
+                if(Nexus.settings.JWT_ENABLED_SOCKET_SERVER == 'true') {
+                    this.socketServer.use(socketJwt.authorize({
+                        secret: Nexus.settings.SOCKET_KEY,
+                        handshake: true
+                    }));
+                }
+                //Redis server is required for cluster
+                this.socketServer.adapter(redisAdapter({
+                    host: Nexus.settings.SOCKET_REDIS_HOST,
+                    port: Nexus.settings.SOCKET_REDIS_PORT
+                }));
+                
+                const socketControllers = fse.readdirSync(path.join(__dirname, '../socket/controllers'));
+    
+                //Add base classes
+                for (let controller of socketControllers) {
+                    let c = require(path.join(__dirname, '../socket/controllers/' + controller));
+                    initSocketControllers.push(new c[controller.split('.')[0]]());
+                }
+    
+                const sioCrl = SioController.getInstance();
+                sioCrl.init(this.socketServer);
+                Nexus.helpers.io = this.socketServer;
             }
-
-            const sioCrl = SioController.getInstance();
-            sioCrl.init(this.socketServer);
-            Nexus.helpers.io = this.socketServer;
-
 
             this.server.listen(this.port, () =>
             {

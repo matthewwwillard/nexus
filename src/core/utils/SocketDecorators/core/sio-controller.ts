@@ -1,4 +1,5 @@
 import * as SocketIO from 'socket.io';
+import {Nexus} from "../../../Nexus";
 export const sioEventProp = '__sioEvent';
 export const sioNamespaceProp = '__sioNamespace';
 export const sioRegisterConnection = '__sioConnection';
@@ -86,6 +87,9 @@ export class SioController {
     }
 
     nsp.on('connection', (socket: SocketIO.Socket) => {
+        socket.on('disconnect', ()=>{
+            Nexus.helpers.io.userDisconnected(socket.id);
+        });
       const onConnectionCbs = nspObj.constructor[sioNamespaceProp].onConnection;
 
       if (onConnectionCbs) {
