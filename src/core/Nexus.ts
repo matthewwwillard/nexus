@@ -62,6 +62,28 @@ export class Nexus
             this.init_server();
     }
 
+    private async registerController(controllers, dir = [])
+    {
+        for(let controller of controllers)
+        {
+            const stat = fse.lstatSync(path.join(__dirname,`../http/controllers/${dir.join('/')}${dir.length > 0 ? '/' : ''}${controller}`));
+
+            if(stat.isDirectory())
+            {
+                const tempControllers = fse.readdirSync(path.join(__dirname, `../http/controllers/${dir.join('/')}${dir.length > 0 ? '/' : ''}${controller}`));
+
+                dir.push(controller);
+
+                await this.registerController(tempControllers, dir);
+
+                continue;
+            }
+
+            let c = require(path.join(__dirname,`../http/controllers/${dir.join('/')}${dir.length > 0 ? '/' : ''}${controller}`));
+            Nexus.http.register(this.app, new c[controller.split('.')[0]]());
+        }
+    }
+
     private async init_server()
     {
         try
@@ -86,12 +108,9 @@ export class Nexus
 
             const controllers = fse.readdirSync(path.join(__dirname,'../http/controllers'));
 
-            //Add base classes
-            for(let controller of controllers)
-            {
-                let c = require(path.join(__dirname,'../http/controllers/'+controller));
-                Nexus.http.register(this.app, new c[controller.split('.')[0]]());
-            }
+            //Add controllers
+            await this.registerController(controllers);
+
 
             this.app.use('/images', express.static(path.join(__dirname, Nexus.settings.TOYBOX_DIR)));
             this.app.use('/docs', express.static(path.join(__dirname, '../../apiDocs/')));
