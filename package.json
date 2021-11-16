@@ -36,7 +36,7 @@
     "@types/request-promise-native": "^1.0.15",
     "@types/socket.io": "^1.4.29",
     "apn": "^2.2.0",
-    "aws-sdk": "^2.217.1",
+    "aws-sdk": "^2.814.0",
     "bcrypt": "^3.0.8",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
